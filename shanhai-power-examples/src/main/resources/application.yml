@@ -1,0 +1,13 @@
+spring:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+shanhai:
+  power:
+    tokenName: token
+    tokenAlgorithm: uuid
+    token-prefix: 'shanhai '
+    route-permissions:
+      - path: '/route/**'
+        permission: 'user:route'
+    exclusive-login: true
