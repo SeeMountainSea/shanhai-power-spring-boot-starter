@@ -44,7 +44,7 @@ public class ShanHaiPowerConfigurer  implements WebMvcConfigurer {
             prefix = "spring.redis",
             name = "host"
     )
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(PowerStoreService.class)
     @SuppressWarnings("all")
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
@@ -64,7 +64,7 @@ public class ShanHaiPowerConfigurer  implements WebMvcConfigurer {
         // hash的value序列化方式采用jackson
         template.setHashValueSerializer(jackson2JsonRedisSerializer);
         template.afterPropertiesSet();
-        Logger.info("RedisCacheService创建成功!", new Object[0]);
+        Logger.info("[ShanHaiPower-Init]-DefaultRedisCacheService创建成功!");
         return template;
     }
 
