@@ -44,10 +44,24 @@ ShanHaiPower 主要提供以下能力：
 
 ## 2.启用组件
 
+SpringBoot 2.x 启用方式
+
 ```java
 @Configuration
 @EnableShanHaiPower
 public class ShanhaiConfig implements WebMvcConfigurer {
+  
+}
+```
+
+SpringBoot 1.5.x 启用方式
+
+```java
+@Configuration
+@EnableShanHaiPower
+@EnableConfigurationProperties(ShanhaiPowerConfig.class)
+@AutoConfigureAfter(WebMvcConfigurationSupport.class)
+public class ShanhaiConfig extends WebMvcConfigurationSupport {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new ShanhaiPowerInterceptor()).addPathPatterns("/**");
@@ -57,9 +71,9 @@ public class ShanhaiConfig implements WebMvcConfigurer {
 }
 ```
 
-组件说明：
+SpringBoot 1.5.x 启用方式需要自己手动注册相关组件。
 
-由于配置拦截器的在SpringBoot1.x和2.x有差异，因此需要自己按自己的方式去注册组件。
+组件说明：
 
 | 组件                                         | 组件名称             | 组件说明                         |
 | -------------------------------------------- | :------------------- | -------------------------------- |
@@ -72,13 +86,19 @@ public class ShanhaiConfig implements WebMvcConfigurer {
 ```yaml
 shanhai:
   power:
-    tokenName: token         #Token名称
-    tokenAlgorithm: uuid     #Token生成规则
-    token-prefix: 'Shanhai ' #Token前缀
-    route-permissions:  #路由权限配置
+    tokenName: token #Token名称
+    tokenAlgorithm: uuid # Token生成算法
+    token-prefix: 'shanhai ' #Token前缀
+    route-permissions: #路由权限定义
       - path: '/route/**'
         permission: 'user:route'
-    exclusive-login: true #是否启动同端互斥登录
+    exclusive-login: true #同端互斥登录
+    route-permission-enable: true #启用路由权限组件
+    auth-path-patterns: #鉴权组件拦截范围
+      - /**
+    permission-path-patterns: #权限组件拦截范围 （路由和注解权限共享）
+      - /**
+    auto-regist: true #自动注册鉴权和注解校验组件（默认启用|如果自己想自行注册，可以关闭）
 ```
 
 ## 4.用户会话组件
