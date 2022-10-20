@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,9 +48,37 @@ public class ShanhaiPowerConfig {
      */
     private Boolean exclusiveLogin=false;
     /**
+     * 是否启用自注册
+     */
+    private Boolean autoRegist=true;
+    /**
+     * 启用路由权限（默认关闭）
+     */
+    private Boolean routePermissionEnable=false;
+    /**
+     * 启用注解权限（默认启用）
+     */
+    private Boolean annotationPermissionsEnable=true;
+    /**
      * 路由权限
      */
     private List<RoutePermission> routePermissions;
+    /**
+     * 拦截范围(用户会话鉴权)
+     */
+    private List<String> authPathPatterns=new ArrayList<>();
+    /**
+     * 不拦截范围(用户会话鉴权)
+     */
+    private List<String> authExcludePathPatterns=new ArrayList<>();
+    /**
+     * 拦截范围(用户操作鉴权)
+     */
+    private List<String> permissionPathPatterns=new ArrayList<>();
+    /**
+     * 不拦截范围(用户操作鉴权)
+     */
+    private List<String> permissionExcludePathPatterns=new ArrayList<>();
 }
 
 

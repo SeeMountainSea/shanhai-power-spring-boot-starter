@@ -4,10 +4,16 @@ spring:
     port: 6379
 shanhai:
   power:
-    tokenName: token
-    tokenAlgorithm: uuid
-    token-prefix: 'shanhai '
-    route-permissions:
+    tokenName: token #Token名称
+    tokenAlgorithm: uuid # Token生成算法
+    token-prefix: 'shanhai ' #Token前缀
+    route-permissions: #路由权限定义
       - path: '/route/**'
         permission: 'user:route'
-    exclusive-login: true
+    exclusive-login: true #同端互斥登录
+    route-permission-enable: true #启用路由权限组件
+    auth-path-patterns: #鉴权组件拦截范围
+      - /**
+    permission-path-patterns: #权限组件拦截范围 （路由和注解权限共享）
+      - /**
+    auto-regist: true #自动注册鉴权和注解校验组件（默认启用|如果自己想自行注册，可以关闭）

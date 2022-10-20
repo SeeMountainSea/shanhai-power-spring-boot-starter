@@ -16,6 +16,7 @@ import java.util.*;
 
 /**
  * 山海Power核心类
+ * @author Shmily
  */
 public class ShanhaiPower {
     private static ShanhaiPowerConfig shanhaiPowerConfig;
@@ -39,6 +40,52 @@ public class ShanhaiPower {
     public static TokenInfo login(Object userFlag,String channel){
         return login(userFlag,channel,new HashMap<>());
     }
+    /**
+     * 登录
+     * @param userFlag 用户标识
+     * @param channel  渠道标识
+     * @param extParams 自定义会话参数
+     * @return
+     */
+    public static TokenInfo login(Object userFlag,String channel, Map<String, Object> extParams){
+        if(StringUtils.isEmpty(channel)){
+            channel="Default";
+        }
+        ShanhaiPowerConfig  shanhaiPowerConfig=getConfig();
+        PowerStoreService powerStoreService= loadCacheService();
+        TokenInfo tokenInfoDTO= TokenInfo.builder()
+                .lastAccessTime(new Date())
+                .status(1)
+                .maxActiveTime(shanhaiPowerConfig.getMaxActiveTime())
+                .userFlag(userFlag)
+                .token(generateToken(shanhaiPowerConfig,extParams))
+                .loginChannel(channel)
+                .build();
+        String tokenInfoFlag="shanhaipower:"+String.valueOf(userFlag)+":"+channel;
+        String tokenLoginListFlag="shanhaipower:"+String.valueOf(userFlag)+":"+channel+":LoginList";
+        String tokenFlag="shanhaipower:"+tokenInfoDTO.getToken();
+        if(shanhaiPowerConfig.getExclusiveLogin()&&powerStoreService.exists(tokenInfoFlag)){
+            String lastToken=String.valueOf(powerStoreService.get(tokenInfoFlag));
+            String lastTokenFlag="shanhaipower:"+lastToken;
+            TokenInfo tokenInfo=powerStoreService.get(lastTokenFlag)==null?null:(TokenInfo)powerStoreService.get(lastTokenFlag);
+            if(tokenInfo!=null){
+                tokenInfo.setStatus(-2);
+                powerStoreService.set(lastTokenFlag,tokenInfo);
+            }
+        }
+        powerStoreService.set(tokenFlag,tokenInfoDTO, shanhaiPowerConfig.getTokenTimeout());
+        powerStoreService.set(tokenInfoFlag,tokenInfoDTO.getToken(), shanhaiPowerConfig.getTokenTimeout());
+        if(powerStoreService.exists(tokenLoginListFlag)){
+            List<String> tokenLoginListT=(List)powerStoreService.get(tokenLoginListFlag);
+            tokenLoginListT.add(tokenInfoDTO.getToken());
+            powerStoreService.set(tokenLoginListFlag,tokenLoginListT, powerStoreService.ttl(tokenLoginListFlag));
+        }else{
+            List<String> tokenLoginListT=new ArrayList<>();
+            tokenLoginListT.add(tokenInfoDTO.getToken());
+            powerStoreService.set(tokenLoginListFlag,tokenLoginListT,shanhaiPowerConfig.getTokenTimeout());
+        }
+        return tokenInfoDTO;
+    }
 
     /**
      * 注销指定Token
@@ -46,6 +93,10 @@ public class ShanhaiPower {
      * @return
      */
     public static void logOutByToken(String token){
+        ShanhaiPowerConfig  shanhaiPowerConfig=getConfig();
+        PowerStoreService powerStoreService= loadCacheService();
+        String tokenPrefix= shanhaiPowerConfig.getTokenPrefix();
+        token=token.replace(tokenPrefix,"");
         String tokenFlag="shanhaipower:"+token;
         powerStoreService.del(tokenFlag);
     }
@@ -64,6 +115,7 @@ public class ShanhaiPower {
      * @return
      */
     public static void logOut(Object userFlag,String channel){
+        PowerStoreService powerStoreService= loadCacheService();
         String tokenInfoFlag="shanhaipower:"+String.valueOf(userFlag)+":"+channel;
         String tokenLoginListFlag="shanhaipower:"+String.valueOf(userFlag)+":"+channel+":LoginList";
         if(powerStoreService.exists(tokenLoginListFlag)){
@@ -85,6 +137,18 @@ public class ShanhaiPower {
         PowerStoreService powerStoreService= loadCacheService();
         String tokenPrefix= shanhaiPowerConfig.getTokenPrefix();
         String token= HttpContextUtils.getHttpServletRequest().getHeader(shanhaiPowerConfig.getTokenName());
+        token=token.replace(tokenPrefix,"");
+        String tokenFlag="shanhaipower:"+token;
+        return powerStoreService.get(tokenFlag)==null?null:(TokenInfo)powerStoreService.get(tokenFlag);
+    }
+    /**
+     * 查询当前登录用户标识
+     * @return
+     */
+    public static TokenInfo getTokenInfo(String token){
+        ShanhaiPowerConfig  shanhaiPowerConfig=getConfig();
+        PowerStoreService powerStoreService= loadCacheService();
+        String tokenPrefix= shanhaiPowerConfig.getTokenPrefix();
         token=token.replace(tokenPrefix,"");
         String tokenFlag="shanhaipower:"+token;
         return powerStoreService.get(tokenFlag)==null?null:(TokenInfo)powerStoreService.get(tokenFlag);
@@ -173,52 +237,6 @@ public class ShanhaiPower {
         }else{
             throw new ShanHaiNotLoginException("Token获取失败！");
         }
-    }
-    /**
-     * 登录
-     * @param userFlag 用户标识
-     * @param channel  渠道标识
-     * @param extParams 自定义会话参数
-     * @return
-     */
-    public static TokenInfo login(Object userFlag,String channel, Map<String, Object> extParams){
-        if(StringUtils.isEmpty(channel)){
-            channel="Default";
-        }
-        ShanhaiPowerConfig  shanhaiPowerConfig=getConfig();
-        PowerStoreService powerStoreService= loadCacheService();
-        TokenInfo tokenInfoDTO= TokenInfo.builder()
-                .lastAccessTime(new Date())
-                .status(1)
-                .maxActiveTime(shanhaiPowerConfig.getMaxActiveTime())
-                .userFlag(userFlag)
-                .token(generateToken(shanhaiPowerConfig,extParams))
-                .loginChannel(channel)
-                .build();
-        String tokenInfoFlag="shanhaipower:"+String.valueOf(userFlag)+":"+channel;
-        String tokenLoginListFlag="shanhaipower:"+String.valueOf(userFlag)+":"+channel+":LoginList";
-        String tokenFlag="shanhaipower:"+tokenInfoDTO.getToken();
-        if(shanhaiPowerConfig.getExclusiveLogin()&&powerStoreService.exists(tokenInfoFlag)){
-            String lastToken=String.valueOf(powerStoreService.get(tokenInfoFlag));
-            String lastTokenFlag="shanhaipower:"+lastToken;
-            TokenInfo tokenInfo=powerStoreService.get(lastTokenFlag)==null?null:(TokenInfo)powerStoreService.get(lastTokenFlag);
-            if(tokenInfo!=null){
-                tokenInfo.setStatus(-2);
-                powerStoreService.set(lastTokenFlag,tokenInfo);
-            }
-        }
-        powerStoreService.set(tokenFlag,tokenInfoDTO, shanhaiPowerConfig.getTokenTimeout());
-        powerStoreService.set(tokenInfoFlag,tokenInfoDTO.getToken(), shanhaiPowerConfig.getTokenTimeout());
-        if(powerStoreService.exists(tokenLoginListFlag)){
-            List<String> tokenLoginListT=(List)powerStoreService.get(tokenLoginListFlag);
-            tokenLoginListT.add(tokenInfoDTO.getToken());
-            powerStoreService.set(tokenLoginListFlag,tokenLoginListT, powerStoreService.ttl(tokenLoginListFlag));
-        }else{
-            List<String> tokenLoginListT=new ArrayList<>();
-            tokenLoginListT.add(tokenInfoDTO.getToken());
-            powerStoreService.set(tokenLoginListFlag,tokenLoginListT,shanhaiPowerConfig.getTokenTimeout());
-        }
-        return tokenInfoDTO;
     }
 
     /**

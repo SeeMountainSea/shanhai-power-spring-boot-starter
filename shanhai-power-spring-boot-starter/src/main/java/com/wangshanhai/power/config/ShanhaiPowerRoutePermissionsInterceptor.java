@@ -5,7 +5,7 @@ import com.wangshanhai.power.exceptions.ShanHaiNotPermissionException;
 import com.wangshanhai.power.open.ShanhaiPower;
 import com.wangshanhai.power.service.PermissionService;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,7 +16,7 @@ import java.util.Optional;
  * 权限拦截器
  * @author Shmily
  */
-public class ShanhaiPowerRoutePermissionsInterceptor implements HandlerInterceptor {
+public class ShanhaiPowerRoutePermissionsInterceptor  extends HandlerInterceptorAdapter {
     /**
      * 用户权限有效性校验
      */

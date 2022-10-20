@@ -6,7 +6,7 @@ import com.wangshanhai.power.open.ShanhaiPower;
 import com.wangshanhai.power.utils.Logger;
 import org.springframework.util.StringUtils;
 import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
  * 鉴权拦截器
  * @author Shmily
  */
-public class ShanhaiPowerInterceptor  implements HandlerInterceptor {
+public class ShanhaiPowerInterceptor   extends HandlerInterceptorAdapter {
     /**
      * 用户会话有效性校验
      */
@@ -47,9 +47,6 @@ public class ShanhaiPowerInterceptor  implements HandlerInterceptor {
                 }
                 if(status==-2){
                     throw  new ShanHaiNotLoginException("10003","你的账号正在其他渠道登录，请注意口令安全");
-                }
-                if(status==-3){
-                    throw  new ShanHaiNotLoginException("10004","你的账号已被注销登录");
                 }
             }
         }

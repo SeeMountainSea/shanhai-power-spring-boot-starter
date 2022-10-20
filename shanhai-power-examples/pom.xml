@@ -6,6 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.2.13.RELEASE</version>
+<!--        <version>1.5.6.RELEASE</version>-->
         <relativePath/>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -28,7 +29,7 @@
         <dependency>
             <groupId>com.wangshanhai.power</groupId>
             <artifactId>shanhai-power-spring-boot-starter</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.2</version>
         </dependency>
     </dependencies>
 </project>

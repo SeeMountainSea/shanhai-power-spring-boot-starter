@@ -4,22 +4,37 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wangshanhai.power.annotation.EnableShanHaiPower;
+import com.wangshanhai.power.config.ShanhaiPowerAnnotationPermissionsInterceptor;
+import com.wangshanhai.power.config.ShanhaiPowerConfig;
+import com.wangshanhai.power.config.ShanhaiPowerInterceptor;
+import com.wangshanhai.power.config.ShanhaiPowerRoutePermissionsInterceptor;
 import com.wangshanhai.power.utils.Logger;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 /**
- * 基于SpringBoot2.x的配置
+ * 基于SpringBoot1.5.x的配置
  * @author Shmily
  */
 @Configuration
 @EnableShanHaiPower
-public class ShanhaiConfig implements WebMvcConfigurer {
+@EnableConfigurationProperties(ShanhaiPowerConfig.class)
+@AutoConfigureAfter(WebMvcConfigurationSupport.class)
+public class ShanhaiLowConfig extends WebMvcConfigurationSupport {
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new ShanhaiPowerInterceptor()).addPathPatterns("/**");
+        registry.addInterceptor(new ShanhaiPowerAnnotationPermissionsInterceptor()).addPathPatterns("/**");
+        registry.addInterceptor(new ShanhaiPowerRoutePermissionsInterceptor()).addPathPatterns("/**");
+    }
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
@@ -42,5 +57,4 @@ public class ShanhaiConfig implements WebMvcConfigurer {
         Logger.info("DemoRedisCacheService创建成功!", new Object[0]);
         return template;
     }
-
 }

@@ -11,7 +11,6 @@ import com.wangshanhai.power.utils.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,14 +35,23 @@ public class ShanHaiPowerConfigurer  implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        Logger.info("[ShanHaiPower-Init]-init Component");
+        if(shanhaiPowerConfig.getAutoRegist()){
+            Logger.info("[ShanHaiPower-Init]-Register Component");
+            registry.addInterceptor(new ShanhaiPowerInterceptor()).addPathPatterns(shanhaiPowerConfig.getAuthPathPatterns())
+                    .excludePathPatterns(shanhaiPowerConfig.getAuthPathPatterns());
+            if(shanhaiPowerConfig.getRoutePermissionEnable()){
+                registry.addInterceptor(new ShanhaiPowerRoutePermissionsInterceptor()).addPathPatterns(shanhaiPowerConfig.getPermissionPathPatterns())
+                        .excludePathPatterns(shanhaiPowerConfig.getPermissionExcludePathPatterns());
+            }
+            if(shanhaiPowerConfig.getAnnotationPermissionsEnable()){
+                registry.addInterceptor(new ShanhaiPowerAnnotationPermissionsInterceptor()).addPathPatterns(shanhaiPowerConfig.getPermissionPathPatterns())
+                        .excludePathPatterns(shanhaiPowerConfig.getPermissionExcludePathPatterns());
+            }
+        }
+
     }
 
     @Bean
-    @ConditionalOnProperty(
-            prefix = "spring.redis",
-            name = "host"
-    )
     @ConditionalOnMissingBean(PowerStoreService.class)
     @SuppressWarnings("all")
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
