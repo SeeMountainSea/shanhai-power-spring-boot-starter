@@ -284,4 +284,56 @@ public class ShanhaiPower {
         }
         return tokenGenerateService.generateToken(shanhaiPowerConfig,extParams);
     }
+    /**
+     * 登录锁定判断
+     * @param userFlag 用户标识
+     *
+     * @return boolean
+     */
+    public static boolean loginLock(Object userFlag){
+          return loginLock(userFlag,"Default");
+    }
+    /**
+     * 登录锁定判断
+     * @param userFlag 用户标识
+     * @param channel  渠道标识
+     *
+     * @return boolean
+     */
+    public static boolean loginLock(Object userFlag,String channel){
+        String lgErrorNum="shanhaipower:login:errornum:"+userFlag+":"+channel;
+        PowerStoreService powerStoreService= loadCacheService();
+        if(powerStoreService.exists(lgErrorNum)){
+            return true;
+        }
+        return false;
+    }
+    /**
+     * 登录失败
+     * @param userFlag 用户标识
+     */
+    public static void loginFailure(Object userFlag){
+        loginFailure(userFlag,"Default");
+    }
+    /**
+     * 登录失败
+     * @param userFlag 用户标识
+     * @param channel 渠道标识
+     */
+    public static void loginFailure(Object userFlag,String channel){
+        String lgErrorNum="shanhaipower:login:errornum:"+userFlag+":"+channel;
+        String lockKey="shanhaipower:login:lock:"+userFlag+":"+channel;
+        PowerStoreService powerStoreService= loadCacheService();
+        ShanhaiPowerConfig  shanhaiPowerConfig=getConfig();
+        if(powerStoreService.exists(lgErrorNum)){
+            int num= Integer.parseInt(String.valueOf(powerStoreService.get(lgErrorNum)));
+            num++;
+            powerStoreService.set(lgErrorNum,String.valueOf(num),shanhaiPowerConfig.getLockThresholdExpire());
+            if(num>shanhaiPowerConfig.getLockThreshold()){
+                powerStoreService.set(lockKey,String.valueOf(num),shanhaiPowerConfig.getLockExpire());
+            }
+        }else{
+            powerStoreService.set(lgErrorNum,String.valueOf(1),shanhaiPowerConfig.getLockThresholdExpire());
+        }
+    }
 }

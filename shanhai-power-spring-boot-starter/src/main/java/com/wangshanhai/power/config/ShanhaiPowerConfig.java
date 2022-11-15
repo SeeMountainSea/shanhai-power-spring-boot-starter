@@ -11,7 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 自定义Body解码规则
+ * ShanhaiPowerConfig
+ * @author Shmily
  */
 @Builder
 @Data
@@ -59,6 +60,18 @@ public class ShanhaiPowerConfig {
      * 启用注解权限（默认启用）
      */
     private Boolean annotationPermissionsEnable=true;
+    /**
+     * 锁定阈值（默认:5）
+     */
+    private Integer lockThreshold=5;
+    /**
+     * 锁定阈值累计有效期（默认:1小时）
+     */
+    private Integer lockThresholdExpire=3600;
+    /**
+     * 锁定时长（单位:s,默认:30分钟）
+     */
+    private Integer lockExpire=1800;
     /**
      * 路由权限
      */
