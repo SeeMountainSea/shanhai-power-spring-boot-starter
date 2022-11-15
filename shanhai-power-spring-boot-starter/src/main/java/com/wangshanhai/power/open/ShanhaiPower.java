@@ -84,6 +84,10 @@ public class ShanhaiPower {
             tokenLoginListT.add(tokenInfoDTO.getToken());
             powerStoreService.set(tokenLoginListFlag,tokenLoginListT,shanhaiPowerConfig.getTokenTimeout());
         }
+        String lgErrorNum="shanhaipower:login:errornum:"+userFlag+":"+channel;
+        String lockKey="shanhaipower:login:lock:"+userFlag+":"+channel;
+        powerStoreService.del(lgErrorNum);
+        powerStoreService.del(lockKey);
         return tokenInfoDTO;
     }
 
