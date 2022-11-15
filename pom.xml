@@ -11,7 +11,7 @@
     </parent>
     <groupId>com.wangshanhai.power</groupId>
     <artifactId>shanhai-power-parent</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <packaging>pom</packaging>
     <name>shanhai-power-parent</name>
     <properties>
