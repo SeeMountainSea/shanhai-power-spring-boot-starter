@@ -14,6 +14,7 @@
     <version>1.0.4</version>
     <packaging>pom</packaging>
     <name>shanhai-power-parent</name>
+    <description>山海Power - 基于SpringBoot的权限组件,极致精简，只为满足简单需要。</description>
     <properties>
         <lombok.version>1.16.14</lombok.version>
     </properties>
