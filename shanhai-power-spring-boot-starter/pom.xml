@@ -5,21 +5,42 @@
     <parent>
         <artifactId>shanhai-power-parent</artifactId>
         <groupId>com.wangshanhai.power</groupId>
-        <version>1.0.1</version>
+        <version>1.0.5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>shanhai-power-spring-boot-starter</artifactId>
     <name>shanhai-power-spring-boot-starter</name>
     <description>山海Power - 基于SpringBoot的权限组件,极致精简，只为满足简单需要。</description>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <commons-codec.version>1.15</commons-codec.version>
+        <zxing-core.version>3.3.3</zxing-core.version>
+        <zxing-javase.version>3.3.3</zxing-javase.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons-codec.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>${zxing-core.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>${zxing-javase.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
