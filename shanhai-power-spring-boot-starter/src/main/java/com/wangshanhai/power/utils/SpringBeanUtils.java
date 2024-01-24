@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * 工具类，通过此类来调用其他类中的方法
  * @author Shmily
  */
-@Component
+@Component("ShanhaiPowerSpringBean")
 public class SpringBeanUtils implements ApplicationContextAware {
 
     private static ApplicationContext applicationContext = null;

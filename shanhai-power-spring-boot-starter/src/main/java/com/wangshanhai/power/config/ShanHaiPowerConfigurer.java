@@ -51,7 +51,7 @@ public class ShanHaiPowerConfigurer  implements WebMvcConfigurer {
 
     }
 
-    @Bean
+    @Bean("ShanhaiPowerRedisTemplate")
     @ConditionalOnMissingBean(PowerStoreService.class)
     @SuppressWarnings("all")
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
@@ -76,14 +76,14 @@ public class ShanHaiPowerConfigurer  implements WebMvcConfigurer {
         return template;
     }
 
-    @Bean
+    @Bean("ShanhaiPowerPowerStoreService")
     @ConditionalOnMissingBean
     public PowerStoreService generateDefaultPowerStoreService(RedisTemplate<String, Object> redisTemplate ) {
         return new RedisPowerStoreServiceImpl(redisTemplate);
     };
 
 
-    @Bean
+    @Bean("ShanhaiPowerTokenGenerateService")
     @ConditionalOnMissingBean
     public TokenGenerateService generateDefaultTokenGenerateService() {
         return new PowerTokenGenerateServiceImpl();

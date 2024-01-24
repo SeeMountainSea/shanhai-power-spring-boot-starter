@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.wangshanhai.power</groupId>
             <artifactId>shanhai-power-spring-boot-starter</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.6</version>
         </dependency>
     </dependencies>
 </project>
