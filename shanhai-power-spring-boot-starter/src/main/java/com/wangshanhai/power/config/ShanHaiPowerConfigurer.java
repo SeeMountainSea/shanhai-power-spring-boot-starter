@@ -51,10 +51,9 @@ public class ShanHaiPowerConfigurer  implements WebMvcConfigurer {
 
     }
 
-    @Bean("ShanhaiPowerRedisTemplate")
-    @ConditionalOnMissingBean(PowerStoreService.class)
-    @SuppressWarnings("all")
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
+    @Bean
+    @ConditionalOnMissingBean
+    public PowerStoreService generateDefaultPowerStoreService(RedisConnectionFactory factory ) {
         RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
         template.setConnectionFactory(factory);
         Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
@@ -73,17 +72,11 @@ public class ShanHaiPowerConfigurer  implements WebMvcConfigurer {
         template.setHashValueSerializer(jackson2JsonRedisSerializer);
         template.afterPropertiesSet();
         Logger.info("[ShanHaiPower-Init]-DefaultRedisCacheService创建成功!");
-        return template;
-    }
-
-    @Bean("ShanhaiPowerPowerStoreService")
-    @ConditionalOnMissingBean
-    public PowerStoreService generateDefaultPowerStoreService(RedisTemplate<String, Object> redisTemplate ) {
-        return new RedisPowerStoreServiceImpl(redisTemplate);
+        return new RedisPowerStoreServiceImpl(template);
     };
 
 
-    @Bean("ShanhaiPowerTokenGenerateService")
+    @Bean
     @ConditionalOnMissingBean
     public TokenGenerateService generateDefaultTokenGenerateService() {
         return new PowerTokenGenerateServiceImpl();

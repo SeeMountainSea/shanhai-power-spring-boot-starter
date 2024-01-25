@@ -11,7 +11,7 @@
     </parent>
     <groupId>com.wangshanhai.power</groupId>
     <artifactId>shanhai-power-parent</artifactId>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <packaging>pom</packaging>
     <name>shanhai-power-parent</name>
     <description>山海Power - 基于SpringBoot的权限组件,极致精简，只为满足简单需要。</description>
