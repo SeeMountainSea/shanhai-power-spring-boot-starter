@@ -38,7 +38,7 @@ public class ShanHaiPowerConfigurer  implements WebMvcConfigurer {
         if(shanhaiPowerConfig.getAutoRegist()){
             Logger.info("[ShanHaiPower-Init]-Register Component");
             registry.addInterceptor(new ShanhaiPowerInterceptor()).addPathPatterns(shanhaiPowerConfig.getAuthPathPatterns())
-                    .excludePathPatterns(shanhaiPowerConfig.getAuthPathPatterns());
+                    .excludePathPatterns(shanhaiPowerConfig.getAuthExcludePathPatterns());
             if(shanhaiPowerConfig.getRoutePermissionEnable()){
                 registry.addInterceptor(new ShanhaiPowerRoutePermissionsInterceptor()).addPathPatterns(shanhaiPowerConfig.getPermissionPathPatterns())
                         .excludePathPatterns(shanhaiPowerConfig.getPermissionExcludePathPatterns());

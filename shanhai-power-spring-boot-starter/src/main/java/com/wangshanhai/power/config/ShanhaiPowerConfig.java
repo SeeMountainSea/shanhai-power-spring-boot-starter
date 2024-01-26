@@ -57,9 +57,9 @@ public class ShanhaiPowerConfig {
      */
     private Boolean routePermissionEnable=false;
     /**
-     * 启用注解权限（默认启用）
+     * 启用注解权限（默认关闭）
      */
-    private Boolean annotationPermissionsEnable=true;
+    private Boolean annotationPermissionsEnable=false;
     /**
      * 锁定阈值（默认:5）
      */
