@@ -2,6 +2,7 @@ package com.wangshanhai.power.open;
 
 import com.wangshanhai.power.config.ShanhaiPowerConfig;
 import com.wangshanhai.power.dto.TokenInfo;
+import com.wangshanhai.power.exceptions.ShanHaiBizException;
 import com.wangshanhai.power.exceptions.ShanHaiNotLoginException;
 import com.wangshanhai.power.service.PermissionService;
 import com.wangshanhai.power.service.PowerStoreService;
@@ -141,6 +142,9 @@ public class ShanhaiPower {
         PowerStoreService powerStoreService= loadCacheService();
         String tokenPrefix= shanhaiPowerConfig.getTokenPrefix();
         String token= HttpContextUtils.getHttpServletRequest().getHeader(shanhaiPowerConfig.getTokenName());
+        if(StringUtils.isEmpty(token)||getTokenInfo(token)==null){
+            throw new ShanHaiBizException("获取数据失败，原因:Token失效");
+        }
         token=token.replace(tokenPrefix,"");
         String tokenFlag="shanhaipower:"+token;
         return powerStoreService.get(tokenFlag)==null?null:(TokenInfo)powerStoreService.get(tokenFlag);
@@ -166,6 +170,29 @@ public class ShanhaiPower {
         PowerStoreService powerStoreService= loadCacheService();
         String tokenPrefix= shanhaiPowerConfig.getTokenPrefix();
         String token= HttpContextUtils.getHttpServletRequest().getHeader(shanhaiPowerConfig.getTokenName());
+        if(StringUtils.isEmpty(token)||getTokenInfo(token)==null){
+            throw new ShanHaiBizException("存储数据失败，原因:Token失效");
+        }
+        token=token.replace(tokenPrefix,"");
+        String tokenFlag="shanhaipower:"+token+":session:"+key;
+        if(!powerStoreService.exists(tokenFlag)){
+            powerStoreService.set(tokenFlag,data,shanhaiPowerConfig.getTokenSessionTimeout());
+        }else{
+            powerStoreService.set(tokenFlag,data,powerStoreService.ttl(tokenFlag));
+        }
+    }
+
+    /**
+     * 设置Token级会话数据
+     * @return
+     */
+    public static void setTokenSessionData(String token,String key,Object data){
+        ShanhaiPowerConfig  shanhaiPowerConfig=getConfig();
+        PowerStoreService powerStoreService= loadCacheService();
+        String tokenPrefix= shanhaiPowerConfig.getTokenPrefix();
+        if(StringUtils.isEmpty(token)||getTokenInfo(token)==null){
+            throw new ShanHaiBizException("存储数据失败，原因:Token失效");
+        }
         token=token.replace(tokenPrefix,"");
         String tokenFlag="shanhaipower:"+token+":session:"+key;
         if(!powerStoreService.exists(tokenFlag)){
@@ -183,6 +210,9 @@ public class ShanhaiPower {
         PowerStoreService powerStoreService= loadCacheService();
         String tokenPrefix= shanhaiPowerConfig.getTokenPrefix();
         String token= HttpContextUtils.getHttpServletRequest().getHeader(shanhaiPowerConfig.getTokenName());
+        if(StringUtils.isEmpty(token)||getTokenInfo(token)==null){
+            throw new ShanHaiBizException("获取数据失败，原因:Token失效");
+        }
         token=token.replace(tokenPrefix,"");
         String tokenFlag="shanhaipower:"+token+":session:"+key;
         return powerStoreService.get(tokenFlag);
