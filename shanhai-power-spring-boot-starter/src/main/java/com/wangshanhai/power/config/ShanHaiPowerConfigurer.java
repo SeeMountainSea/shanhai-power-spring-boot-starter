@@ -3,8 +3,10 @@ package com.wangshanhai.power.config;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wangshanhai.power.service.PowerExtService;
 import com.wangshanhai.power.service.PowerStoreService;
 import com.wangshanhai.power.service.TokenGenerateService;
+import com.wangshanhai.power.service.impl.PowerExtServiceImpl;
 import com.wangshanhai.power.service.impl.PowerTokenGenerateServiceImpl;
 import com.wangshanhai.power.service.impl.RedisPowerStoreServiceImpl;
 import com.wangshanhai.power.utils.Logger;
@@ -80,5 +82,11 @@ public class ShanHaiPowerConfigurer  implements WebMvcConfigurer {
     @ConditionalOnMissingBean
     public TokenGenerateService generateDefaultTokenGenerateService() {
         return new PowerTokenGenerateServiceImpl();
+    };
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PowerExtService generateDefaultPowerExtService() {
+        return new PowerExtServiceImpl();
     };
 }

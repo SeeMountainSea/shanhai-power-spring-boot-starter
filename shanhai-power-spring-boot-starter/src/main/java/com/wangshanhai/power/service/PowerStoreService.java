@@ -51,4 +51,16 @@ public interface PowerStoreService {
      */
     void set(String key, Object value, long time);
 
+    /**
+     * 获取指定key的锁
+     * @param lockKey
+     * @return
+     */
+    public boolean lock(String lockKey);
+
+    /**
+     * 释放指定key的锁
+     * @param lockKey
+     */
+    public void unlock(String lockKey);
 }

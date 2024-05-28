@@ -5,6 +5,7 @@ import com.wangshanhai.power.dto.TokenInfo;
 import com.wangshanhai.power.exceptions.ShanHaiBizException;
 import com.wangshanhai.power.exceptions.ShanHaiNotLoginException;
 import com.wangshanhai.power.service.PermissionService;
+import com.wangshanhai.power.service.PowerExtService;
 import com.wangshanhai.power.service.PowerStoreService;
 import com.wangshanhai.power.service.TokenGenerateService;
 import com.wangshanhai.power.utils.HttpContextUtils;
@@ -24,6 +25,8 @@ public class ShanhaiPower {
     private static PowerStoreService powerStoreService;
     private static TokenGenerateService tokenGenerateService;
     private static PermissionService permissionService;
+
+    private static PowerExtService powerExtService;
     /**
      * 登录
      * @param userFlag 用户标识
@@ -54,7 +57,11 @@ public class ShanhaiPower {
         }
         ShanhaiPowerConfig  shanhaiPowerConfig=getConfig();
         PowerStoreService powerStoreService= loadCacheService();
+        if (powerExtService == null) {
+            powerExtService=SpringBeanUtils.getBean(PowerExtService.class);
+        }
         TokenInfo tokenInfoDTO= TokenInfo.builder()
+                .createIP(powerExtService.getIp(HttpContextUtils.getHttpServletRequest()))
                 .lastAccessTime(new Date())
                 .status(1)
                 .maxActiveTime(shanhaiPowerConfig.getMaxActiveTime())
@@ -62,34 +69,38 @@ public class ShanhaiPower {
                 .token(generateToken(shanhaiPowerConfig,extParams))
                 .loginChannel(channel)
                 .build();
-        String tokenInfoFlag="shanhaipower:"+String.valueOf(userFlag)+":"+channel;
-        String tokenLoginListFlag="shanhaipower:"+String.valueOf(userFlag)+":"+channel+":LoginList";
+        String tokenInfoFlag="shanhaipower:"+ userFlag +":"+channel;
+        String tokenLoginListFlag="shanhaipower:"+ userFlag +":"+channel+":LoginList";
         String tokenFlag="shanhaipower:"+tokenInfoDTO.getToken();
-        if(shanhaiPowerConfig.getExclusiveLogin()&&powerStoreService.exists(tokenInfoFlag)){
-            String lastToken=String.valueOf(powerStoreService.get(tokenInfoFlag));
-            String lastTokenFlag="shanhaipower:"+lastToken;
-            TokenInfo tokenInfo=powerStoreService.get(lastTokenFlag)==null?null:(TokenInfo)powerStoreService.get(lastTokenFlag);
-            if(tokenInfo!=null){
-                tokenInfo.setStatus(-2);
-                powerStoreService.set(lastTokenFlag,tokenInfo);
+        if(powerStoreService.lock(tokenInfoFlag)){
+            if(shanhaiPowerConfig.getExclusiveLogin()&&powerStoreService.exists(tokenInfoFlag)){
+                String lastToken=String.valueOf(powerStoreService.get(tokenInfoFlag));
+                String lastTokenFlag="shanhaipower:"+lastToken;
+                TokenInfo tokenInfo=powerStoreService.get(lastTokenFlag)==null?null:(TokenInfo)powerStoreService.get(lastTokenFlag);
+                if(tokenInfo!=null){
+                    tokenInfo.setStatus(-2);
+                    powerStoreService.set(lastTokenFlag,tokenInfo);
+                }
             }
+            powerStoreService.set(tokenFlag,tokenInfoDTO, shanhaiPowerConfig.getTokenTimeout());
+            powerStoreService.set(tokenInfoFlag,tokenInfoDTO.getToken(), shanhaiPowerConfig.getTokenTimeout());
+            if(powerStoreService.exists(tokenLoginListFlag)){
+                List<String> tokenLoginListT=(List)powerStoreService.get(tokenLoginListFlag);
+                tokenLoginListT.add(tokenInfoDTO.getToken());
+                powerStoreService.set(tokenLoginListFlag,tokenLoginListT, powerStoreService.ttl(tokenLoginListFlag));
+            }else{
+                List<String> tokenLoginListT=new ArrayList<>();
+                tokenLoginListT.add(tokenInfoDTO.getToken());
+                powerStoreService.set(tokenLoginListFlag,tokenLoginListT,shanhaiPowerConfig.getTokenTimeout());
+            }
+            String lgErrorNum="shanhaipower:login:errornum:"+userFlag+":"+channel;
+            String lockKey="shanhaipower:login:lock:"+userFlag+":"+channel;
+            powerStoreService.del(lgErrorNum);
+            powerStoreService.del(lockKey);
+            powerStoreService.unlock(tokenInfoFlag);
+            return tokenInfoDTO;
         }
-        powerStoreService.set(tokenFlag,tokenInfoDTO, shanhaiPowerConfig.getTokenTimeout());
-        powerStoreService.set(tokenInfoFlag,tokenInfoDTO.getToken(), shanhaiPowerConfig.getTokenTimeout());
-        if(powerStoreService.exists(tokenLoginListFlag)){
-            List<String> tokenLoginListT=(List)powerStoreService.get(tokenLoginListFlag);
-            tokenLoginListT.add(tokenInfoDTO.getToken());
-            powerStoreService.set(tokenLoginListFlag,tokenLoginListT, powerStoreService.ttl(tokenLoginListFlag));
-        }else{
-            List<String> tokenLoginListT=new ArrayList<>();
-            tokenLoginListT.add(tokenInfoDTO.getToken());
-            powerStoreService.set(tokenLoginListFlag,tokenLoginListT,shanhaiPowerConfig.getTokenTimeout());
-        }
-        String lgErrorNum="shanhaipower:login:errornum:"+userFlag+":"+channel;
-        String lockKey="shanhaipower:login:lock:"+userFlag+":"+channel;
-        powerStoreService.del(lgErrorNum);
-        powerStoreService.del(lockKey);
-        return tokenInfoDTO;
+        throw new ShanHaiBizException("用户登录失败，原因:禁止用户并发登录");
     }
 
     /**
@@ -121,8 +132,8 @@ public class ShanhaiPower {
      */
     public static void logOut(Object userFlag,String channel){
         PowerStoreService powerStoreService= loadCacheService();
-        String tokenInfoFlag="shanhaipower:"+String.valueOf(userFlag)+":"+channel;
-        String tokenLoginListFlag="shanhaipower:"+String.valueOf(userFlag)+":"+channel+":LoginList";
+        String tokenInfoFlag="shanhaipower:"+ userFlag +":"+channel;
+        String tokenLoginListFlag="shanhaipower:"+ userFlag +":"+channel+":LoginList";
         if(powerStoreService.exists(tokenLoginListFlag)){
             List<String> tokenLoginListT=(List)powerStoreService.get(tokenLoginListFlag);
             for(String t:tokenLoginListT){
@@ -175,10 +186,15 @@ public class ShanhaiPower {
         }
         token=token.replace(tokenPrefix,"");
         String tokenFlag="shanhaipower:"+token+":session:"+key;
-        if(!powerStoreService.exists(tokenFlag)){
-            powerStoreService.set(tokenFlag,data,shanhaiPowerConfig.getTokenSessionTimeout());
+        if(powerStoreService.lock(tokenFlag)){
+            if(!powerStoreService.exists(tokenFlag)){
+                powerStoreService.set(tokenFlag,data,shanhaiPowerConfig.getTokenSessionTimeout());
+            }else{
+                powerStoreService.set(tokenFlag,data,powerStoreService.ttl(tokenFlag));
+            }
+            powerStoreService.unlock(tokenFlag);
         }else{
-            powerStoreService.set(tokenFlag,data,powerStoreService.ttl(tokenFlag));
+            throw new ShanHaiBizException("[SetTokenSessionData]-key:"+key+"数据设置失败，原因：获取锁失败！");
         }
     }
 
@@ -195,10 +211,15 @@ public class ShanhaiPower {
         }
         token=token.replace(tokenPrefix,"");
         String tokenFlag="shanhaipower:"+token+":session:"+key;
-        if(!powerStoreService.exists(tokenFlag)){
-            powerStoreService.set(tokenFlag,data,shanhaiPowerConfig.getTokenSessionTimeout());
+        if(powerStoreService.lock(tokenFlag)){
+            if(!powerStoreService.exists(tokenFlag)){
+                powerStoreService.set(tokenFlag,data,shanhaiPowerConfig.getTokenSessionTimeout());
+            }else{
+                powerStoreService.set(tokenFlag,data,powerStoreService.ttl(tokenFlag));
+            }
+            powerStoreService.unlock(tokenFlag);
         }else{
-            powerStoreService.set(tokenFlag,data,powerStoreService.ttl(tokenFlag));
+            throw new ShanHaiBizException("[SetTokenSessionData]-key:"+key+"数据设置失败，原因：获取锁失败！");
         }
     }
     /**
