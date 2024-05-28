@@ -25,7 +25,6 @@ public class ShanhaiPower {
     private static PowerStoreService powerStoreService;
     private static TokenGenerateService tokenGenerateService;
     private static PermissionService permissionService;
-
     private static PowerExtService powerExtService;
     /**
      * 登录
@@ -227,10 +226,17 @@ public class ShanhaiPower {
      * @return
      */
     public static Object getTokenSessionData(String key){
+        String token= HttpContextUtils.getHttpServletRequest().getHeader(shanhaiPowerConfig.getTokenName());
+        return getTokenSessionData(token,key);
+    }
+    /**
+     * 获取Token级会话数据
+     * @return
+     */
+    public static Object getTokenSessionData(String token,String key){
         ShanhaiPowerConfig  shanhaiPowerConfig=getConfig();
         PowerStoreService powerStoreService= loadCacheService();
         String tokenPrefix= shanhaiPowerConfig.getTokenPrefix();
-        String token= HttpContextUtils.getHttpServletRequest().getHeader(shanhaiPowerConfig.getTokenName());
         if(StringUtils.isEmpty(token)||getTokenInfo(token)==null){
             throw new ShanHaiBizException("获取数据失败，原因:Token失效");
         }
@@ -243,10 +249,17 @@ public class ShanhaiPower {
      * @return
      */
     public static Integer checkToken(HttpServletRequest request){
+        String token= request.getHeader(shanhaiPowerConfig.getTokenName());
+        return checkToken(token);
+    }
+    /**
+     * 校验token有效性
+     * @return
+     */
+    public static Integer checkToken(String token){
         ShanhaiPowerConfig  shanhaiPowerConfig=getConfig();
         PowerStoreService powerStoreService= loadCacheService();
         String tokenPrefix= shanhaiPowerConfig.getTokenPrefix();
-        String token= request.getHeader(shanhaiPowerConfig.getTokenName());
         token=token.replace(tokenPrefix,"");
         String tokenFlag="shanhaipower:"+token;
         TokenInfo tokenInfo=powerStoreService.get(tokenFlag)==null?null:(TokenInfo)powerStoreService.get(tokenFlag);
@@ -273,15 +286,21 @@ public class ShanhaiPower {
         //会话不存在
         return -1;
     }
-
     /**
      * 刷新Token有效期
      */
     public static void refreshTokenAccessTime(HttpServletRequest request){
+        String token= request.getHeader(shanhaiPowerConfig.getTokenName());
+        refreshTokenAccessTime(token);
+    }
+
+    /**
+     * 刷新Token有效期
+     */
+    public static void refreshTokenAccessTime(String token){
         ShanhaiPowerConfig  shanhaiPowerConfig=getConfig();
         PowerStoreService powerStoreService= loadCacheService();
         String tokenPrefix= shanhaiPowerConfig.getTokenPrefix();
-        String token= request.getHeader(shanhaiPowerConfig.getTokenName());
         token=token.replace(tokenPrefix,"");
         String tokenFlag="shanhaipower:"+token;
         TokenInfo tokenInfo=powerStoreService.get(tokenFlag)==null?null:(TokenInfo)powerStoreService.get(tokenFlag);
@@ -293,7 +312,6 @@ public class ShanhaiPower {
             throw new ShanHaiNotLoginException("Token获取失败！");
         }
     }
-
     /**
      * 获取全局配置参数
      * @return

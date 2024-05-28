@@ -5,7 +5,7 @@
     <parent>
         <artifactId>shanhai-power-parent</artifactId>
         <groupId>com.wangshanhai.power</groupId>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>shanhai-power-spring-boot-starter</artifactId>
