@@ -26,13 +26,23 @@ public class ShanhaiPower {
     private static TokenGenerateService tokenGenerateService;
     private static PermissionService permissionService;
     private static PowerExtService powerExtService;
+
     /**
      * 登录
      * @param userFlag 用户标识
      * @return
      */
     public static TokenInfo login(Object userFlag){
-        return login(userFlag,"Default",new HashMap<>());
+        return login(userFlag,"Default",new HashMap<>(),new HashMap<>());
+    }
+    /**
+     * 登录
+     * @param userFlag 用户标识
+     * @param tokenExtParams 自定义返回参数
+     * @return
+     */
+    public static TokenInfo login(Object userFlag,Map<String, Object> tokenExtParams){
+        return login(userFlag,"Default",new HashMap<>(),tokenExtParams);
     }
     /**
      * 登录
@@ -41,16 +51,27 @@ public class ShanhaiPower {
      * @return
      */
     public static TokenInfo login(Object userFlag,String channel){
-        return login(userFlag,channel,new HashMap<>());
+        return login(userFlag,channel,new HashMap<>(),new HashMap<>());
+    }
+    /**
+     * 登录
+     * @param userFlag 用户标识
+     * @param channel 登陆渠道
+     * @param tokenExtParams 自定义返回参数
+     * @return
+     */
+    public static TokenInfo login(Object userFlag,String channel,Map<String, Object> tokenExtParams){
+        return login(userFlag,channel,new HashMap<>(),tokenExtParams);
     }
     /**
      * 登录
      * @param userFlag 用户标识
      * @param channel  渠道标识
-     * @param extParams 自定义会话参数
+     * @param generateTokenExtParams 生成token自定义策略参数
+     * @param tokenExtParams token自定义返回参数
      * @return
      */
-    public static TokenInfo login(Object userFlag,String channel, Map<String, Object> extParams){
+    public static TokenInfo login(Object userFlag,String channel, Map<String, Object> generateTokenExtParams,Map<String, Object> tokenExtParams){
         if(StringUtils.isEmpty(channel)){
             channel="Default";
         }
@@ -61,11 +82,13 @@ public class ShanhaiPower {
         }
         TokenInfo tokenInfoDTO= TokenInfo.builder()
                 .createIP(powerExtService.getIp(HttpContextUtils.getHttpServletRequest()))
+                .createTime(new Date())
                 .lastAccessTime(new Date())
+                .extParams(tokenExtParams)
                 .status(1)
                 .maxActiveTime(shanhaiPowerConfig.getMaxActiveTime())
                 .userFlag(userFlag)
-                .token(generateToken(shanhaiPowerConfig,extParams))
+                .token(generateToken(shanhaiPowerConfig,generateTokenExtParams))
                 .loginChannel(channel)
                 .build();
         String tokenInfoFlag="shanhaipower:"+ userFlag +":"+channel;

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * 令牌信息
@@ -53,4 +54,8 @@ public class TokenInfo implements Serializable {
      * Token生成渠道
      */
     private String loginChannel;
+    /**
+     * Token扩展参数
+     */
+    private Map<String,Object> extParams;
 }
