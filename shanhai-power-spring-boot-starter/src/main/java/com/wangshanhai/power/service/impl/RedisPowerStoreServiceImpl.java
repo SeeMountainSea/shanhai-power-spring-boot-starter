@@ -79,7 +79,7 @@ public class RedisPowerStoreServiceImpl implements PowerStoreService {
 
     @Override
     public boolean lock(String lockKey) {
-        Boolean result = redisTemplate.opsForValue().setIfAbsent(lockKey+"_lock", "locked", 12, TimeUnit.HOURS);
+        Boolean result = redisTemplate.opsForValue().setIfAbsent(lockKey+"_lock", "locked", 10, TimeUnit.SECONDS);
         return result != null && result;
     }
 
