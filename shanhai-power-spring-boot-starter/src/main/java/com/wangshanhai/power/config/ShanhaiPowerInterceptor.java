@@ -43,10 +43,13 @@ public class ShanhaiPowerInterceptor   extends HandlerInterceptorAdapter {
                 return true;
             }else{ //会话无效
                 if(status==-1){
-                    throw   new ShanHaiNotLoginException("10002","登录超时");
+                    throw   new ShanHaiNotLoginException("10002","你的会话已失效");
                 }
                 if(status==-2){
                     throw  new ShanHaiNotLoginException("10003","你的账号正在其他渠道登录，请注意口令安全");
+                }
+                if(status==-3){
+                    throw  new ShanHaiNotLoginException("10004","你的会话已超时");
                 }
             }
         }

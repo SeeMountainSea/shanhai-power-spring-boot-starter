@@ -302,10 +302,13 @@ public class ShanhaiPower {
                 }else{
                     powerStoreService.del(tokenFlag);
                     powerStoreService.del(tokenInfoFlag);
+                    Logger.error("[ShanhaiPower-Token-TimeOut]-tokenInfo:{}", tokenInfo);
+                    //会话超时
+                    return -3;
                 }
             }
         }
-        Logger.error("[ShanhaiPower-Token-TimeOut]-token:{}", token);
+        Logger.error("[ShanhaiPower-Token-NotFind]-token:{}", token);
         //会话不存在
         return -1;
     }

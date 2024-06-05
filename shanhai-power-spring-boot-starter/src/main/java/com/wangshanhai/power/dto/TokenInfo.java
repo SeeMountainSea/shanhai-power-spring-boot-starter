@@ -47,7 +47,7 @@ public class TokenInfo implements Serializable {
      */
     private Object userFlag;
     /**
-     * token状态 -1 会话过期  -2:互斥登录被踢  1:正常
+     * token状态 -3会话超时 -1 会话失效  -2:互斥登录被踢  1:正常
      */
     private Integer status;
     /**
