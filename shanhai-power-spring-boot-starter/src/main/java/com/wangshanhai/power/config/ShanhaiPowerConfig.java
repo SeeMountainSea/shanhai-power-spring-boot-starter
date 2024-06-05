@@ -37,6 +37,10 @@ public class ShanhaiPowerConfig {
      */
     private Integer maxActiveTime=1800;
     /**
+     * 并发锁有效期 单位：秒
+     */
+    private Integer lockKeyTime=10;
+    /**
      * token有效期 单位:秒
      */
     private Integer tokenTimeout=60*60*24;

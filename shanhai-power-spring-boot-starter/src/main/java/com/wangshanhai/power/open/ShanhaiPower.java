@@ -122,7 +122,7 @@ public class ShanhaiPower {
             powerStoreService.unlock(tokenInfoFlag);
             return tokenInfoDTO;
         }
-        throw new ShanHaiBizException("用户登录失败，原因:禁止用户并发登录");
+        throw new ShanHaiBizException("用户登录失败，原因:暂无可用资源！");
     }
 
     /**
@@ -216,7 +216,7 @@ public class ShanhaiPower {
             }
             powerStoreService.unlock(tokenFlag);
         }else{
-            throw new ShanHaiBizException("[SetTokenSessionData]-key:"+key+"数据设置失败，原因：获取锁失败！");
+            throw new ShanHaiBizException("数据设置失败，原因：暂无可用资源！");
         }
     }
 
@@ -241,7 +241,7 @@ public class ShanhaiPower {
             }
             powerStoreService.unlock(tokenFlag);
         }else{
-            throw new ShanHaiBizException("[SetTokenSessionData]-key:"+key+"数据设置失败，原因：获取锁失败！");
+            throw new ShanHaiBizException("数据设置失败，原因：暂无可用资源！");
         }
     }
     /**

@@ -1,6 +1,8 @@
 package com.wangshanhai.power.service.impl;
 
+import com.wangshanhai.power.config.ShanhaiPowerConfig;
 import com.wangshanhai.power.service.PowerStoreService;
+import com.wangshanhai.power.utils.SpringBeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 
@@ -79,7 +81,12 @@ public class RedisPowerStoreServiceImpl implements PowerStoreService {
 
     @Override
     public boolean lock(String lockKey) {
-        Boolean result = redisTemplate.opsForValue().setIfAbsent(lockKey+"_lock", "locked", 10, TimeUnit.SECONDS);
+        int lockTimeOut=10;
+        ShanhaiPowerConfig shanhaiPowerConfig=  SpringBeanUtils.getBean(ShanhaiPowerConfig.class);
+        if(shanhaiPowerConfig.getLockKeyTime() != null&&shanhaiPowerConfig.getLockKeyTime()>0){
+            lockTimeOut=shanhaiPowerConfig.getLockKeyTime();
+        }
+        Boolean result = redisTemplate.opsForValue().setIfAbsent(lockKey+"_lock", "locked", lockTimeOut, TimeUnit.SECONDS);
         return result != null && result;
     }
 
