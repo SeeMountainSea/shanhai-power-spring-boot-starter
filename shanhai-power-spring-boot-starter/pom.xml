@@ -5,13 +5,13 @@
     <parent>
         <artifactId>shanhai-power-parent</artifactId>
         <groupId>com.wangshanhai.power</groupId>
-        <version>1.1.4</version>
+        <version>1.1.5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>shanhai-power-spring-boot-starter</artifactId>
     <name>shanhai-power-spring-boot-starter</name>
     <description>山海Power - 基于SpringBoot的权限组件,极致精简，只为满足简单需要。</description>
-    <version>1.1.4</version>
+    <version>1.1.5</version>
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
