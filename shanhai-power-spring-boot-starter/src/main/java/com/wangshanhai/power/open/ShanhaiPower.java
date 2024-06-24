@@ -174,13 +174,15 @@ public class ShanhaiPower {
         ShanhaiPowerConfig  shanhaiPowerConfig=getConfig();
         PowerStoreService powerStoreService= loadCacheService();
         String tokenPrefix= shanhaiPowerConfig.getTokenPrefix();
-        String token= HttpContextUtils.getHttpServletRequest().getHeader(shanhaiPowerConfig.getTokenName());
-        if(StringUtils.isEmpty(token)||getTokenInfo(token)==null){
-            throw new ShanHaiBizException("获取数据失败，原因:Token失效");
+        String token= Objects.requireNonNull(HttpContextUtils.getHttpServletRequest()).getHeader(shanhaiPowerConfig.getTokenName());
+        if(StringUtils.isEmpty(token)){
+            throw new ShanHaiBizException("获取数据失败，原因:Token不存在");
         }
-        token=token.replace(tokenPrefix,"");
-        String tokenFlag="shanhaipower:"+token;
-        return powerStoreService.get(tokenFlag)==null?null:(TokenInfo)powerStoreService.get(tokenFlag);
+        TokenInfo tokenInfo=getTokenInfo(token);
+        if(tokenInfo==null){
+             throw new ShanHaiNotLoginException("获取数据失败，原因:Token失效");
+        }
+        return tokenInfo;
     }
     /**
      * 查询当前登录用户标识
@@ -203,8 +205,11 @@ public class ShanhaiPower {
         PowerStoreService powerStoreService= loadCacheService();
         String tokenPrefix= shanhaiPowerConfig.getTokenPrefix();
         String token= HttpContextUtils.getHttpServletRequest().getHeader(shanhaiPowerConfig.getTokenName());
-        if(StringUtils.isEmpty(token)||getTokenInfo(token)==null){
-            throw new ShanHaiBizException("存储数据失败，原因:Token失效");
+        if(StringUtils.isEmpty(token)){
+            throw new ShanHaiBizException("存储数据失败，原因:Token不存在");
+        }
+        if(getTokenInfo(token)==null){
+            throw new ShanHaiNotLoginException("存储数据失败，原因:Token失效");
         }
         token=token.replace(tokenPrefix,"");
         String tokenFlag="shanhaipower:"+token+":session:"+key;
@@ -228,8 +233,11 @@ public class ShanhaiPower {
         ShanhaiPowerConfig  shanhaiPowerConfig=getConfig();
         PowerStoreService powerStoreService= loadCacheService();
         String tokenPrefix= shanhaiPowerConfig.getTokenPrefix();
-        if(StringUtils.isEmpty(token)||getTokenInfo(token)==null){
-            throw new ShanHaiBizException("存储数据失败，原因:Token失效");
+        if(StringUtils.isEmpty(token)){
+            throw new ShanHaiBizException("存储数据失败，原因:Token不存在");
+        }
+        if(getTokenInfo(token)==null){
+            throw new ShanHaiNotLoginException("存储数据失败，原因:Token失效");
         }
         token=token.replace(tokenPrefix,"");
         String tokenFlag="shanhaipower:"+token+":session:"+key;
@@ -260,8 +268,11 @@ public class ShanhaiPower {
         ShanhaiPowerConfig  shanhaiPowerConfig=getConfig();
         PowerStoreService powerStoreService= loadCacheService();
         String tokenPrefix= shanhaiPowerConfig.getTokenPrefix();
-        if(StringUtils.isEmpty(token)||getTokenInfo(token)==null){
-            throw new ShanHaiBizException("获取数据失败，原因:Token失效");
+        if(StringUtils.isEmpty(token)){
+            throw new ShanHaiBizException("获取数据失败，原因:Token不存在");
+        }
+        if(getTokenInfo(token)==null){
+            throw new ShanHaiNotLoginException("获取数据失败，原因:Token失效");
         }
         token=token.replace(tokenPrefix,"");
         String tokenFlag="shanhaipower:"+token+":session:"+key;
